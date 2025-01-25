@@ -5,7 +5,7 @@ const router = express.Router();
 // Get list of users
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, email FROM users');
+        const result = await pool.query('SELECT id, email, role FROM users');
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching users:', error);
