@@ -2,6 +2,8 @@ services:
   backend:
     container_name: backend
     build: ./backend
+    env_file:
+      - .env
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules  # Avoid overwriting node_modules in container
@@ -9,22 +11,8 @@ services:
     ports:
       - "${PORT}:${PORT}"
     depends_on:
-      - postgres
       - redis
     command: ["nodemon", "src/server.js"]
-
-  postgres:
-    image: postgres:latest
-    container_name: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "${DB_PORT}:${DB_PORT}"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
@@ -32,6 +20,3 @@ services:
     restart: always
     ports:
       - "6379:6379"
-
-volumes:
-  pgdata:
