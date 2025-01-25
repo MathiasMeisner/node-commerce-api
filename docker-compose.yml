@@ -11,7 +11,7 @@ services:
     depends_on:
       - postgres
       - redis
-    command: npm run dev
+    command: ["nodemon", "src/server.js"]
 
   postgres:
     image: postgres:latest

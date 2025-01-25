@@ -7,14 +7,14 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json first (for caching dependencies)
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies, including nodemon globally
+RUN npm install && npm install -g nodemon
 
 # Copy the entire project to the container
 COPY . .
 
-# Expose the app port (match with your .env PORT)
+# Expose the app port
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "run", "dev"]
+# Start with nodemon
+CMD ["nodemon", "src/server.js"]
