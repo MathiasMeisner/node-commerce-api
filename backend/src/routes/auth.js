@@ -8,20 +8,21 @@ const SECRET_KEY = process.env.JWT_SECRET || 'secretKey';
 
 // Register user and return JWT token
 router.post('/register', async (req, res) => {
-    const { email, password} = req.body;
+    const {name, email, password} = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await pool.query(
-            'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
-            [email, hashedPassword]
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
+            [name, email, hashedPassword]
         );
+        console.log;
 
         const newUser = result.rows[0];
 
         // Generate JWT token
         const token = jwt.sign(
-            { id: newUser.id, email: newUser.email },
+            { id: newUser.id, name: newUser.name, email: newUser.email },
             SECRET_KEY,
             { expiresIn: '1h' }
         );
@@ -29,6 +30,7 @@ router.post('/register', async (req, res) => {
         // Return user data + JWT token
         res.status(201).json({
             id: newUser.id,
+            name: newUser.name,
             email: newUser.email,
             token: token
         });
