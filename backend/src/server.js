@@ -10,12 +10,14 @@ const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const cartRoutes = require('./routes/cart');
+const orderRoutes = require('./routes/orders');
 
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/cart', cartRoutes);
+app.use('/orders', orderRoutes);
 
 // Only start the server if not in test mode
 if (process.env.NODE_ENV !== 'test') {
