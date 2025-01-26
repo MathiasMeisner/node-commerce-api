@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const pool = require('./config/dbConfig');
+const cors = require("cors");
 
 app.use(express.json());
 
@@ -12,6 +13,7 @@ const categoryRoutes = require('./routes/categories');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
 
+app.use(cors());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
