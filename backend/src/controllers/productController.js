@@ -2,7 +2,7 @@ const pool = require('../config/dbConfig');
 
 const getAllProducts = async (req, res) => {
     const { category, sort } = req.query; // Get query parameters
-    let query = `SELECT p.id, p.name, p.description, p.price, p.stock, p.created_at, c.name AS category_name
+    let query = `SELECT p.id, p.name, p.description, p.price, p.stock, p.created_at, p.image_url, c.name AS category_name
                  FROM products p
                  JOIN categories c ON p.category_id = c.id`;
     let queryParams = [];
