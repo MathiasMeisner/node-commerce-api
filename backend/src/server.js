@@ -1,18 +1,30 @@
-const express = require("express");
-require("dotenv").config();
-require("./config/dbConfig"); // Ensures DB connection initializes
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-
+const express = require('express');
 const app = express();
+const pool = require('./config/dbConfig');
 
 app.use(express.json());
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const productRoutes = require('./routes/products');
+const categoryRoutes = require('./routes/categories');
+
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+app.use('/products', productRoutes);
+app.use('/categories', categoryRoutes);
 
-app.get("/", (req, res) => {
-    res.send("API is running...");
+// Only start the server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Global Error Handler (Logs errors properly)
+app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.url}`);
+    next();
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = app; // Export for testing
