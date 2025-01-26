@@ -49,7 +49,7 @@ const loginUser = async (req, res) => {
 
         // Generate JWT-token
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role }, // Payload
+            { id: user.id, email: user.email }, // Payload
             SECRET_KEY,                         // Secret key
             { expiresIn: '1h' }                 // Token expires after 1 hour
         );
