@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const pool = require('./config/dbConfig');
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
 
 app.use(express.json());
 
@@ -14,6 +15,7 @@ const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
 
 app.use(cors());
+app.use(cookieParser());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);

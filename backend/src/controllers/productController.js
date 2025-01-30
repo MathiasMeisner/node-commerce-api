@@ -2,9 +2,9 @@ const pool = require('../config/dbConfig');
 
 const getAllProducts = async (req, res) => {
     const { category, sort } = req.query; // Get query parameters
-    let query = `SELECT p.id, p.name, p.description, p.price, p.stock, p.created_at, p.image_url, c.name AS category_name
-                 FROM products p
-                 JOIN categories c ON p.category_id = c.id`;
+    let query = `SELECT p.id, p.name, p.brand, p.description, p.price, p.stock, p.created_at, p.image_url, c.id AS category_id, c.name AS category_name
+                    FROM products p
+                    JOIN categories c ON p.category_id = c.id`;
     let queryParams = [];
 
     // Filtering by category
@@ -48,7 +48,7 @@ const getAllProducts = async (req, res) => {
 
 const getProduct = async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, name, description, price, stock, category_id, created_at FROM products WHERE id = $1', [req.params.id]);
+        const result = await pool.query('SELECT id, name, brand, description, price, stock, category_id, created_at, image_url FROM products WHERE id = $1', [req.params.id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Product not found' });
@@ -62,12 +62,12 @@ const getProduct = async (req, res) => {
 };
 
 const addProduct = async (req, res) => {
-    const { name, description, price, stock, category_id } = req.body;
+    const { name, brand, description, price, stock, image_url, category_id } = req.body;
 
     try {
         const result = await pool.query(
-            'INSERT INTO products (name, description, price, stock, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, description, price, stock, category_id, created_at',
-            [name, description, price, stock, category_id]      
+            'INSERT INTO products (name, brand, description, price, stock, image_url, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, brand, description, price, stock, category_id, created_at',
+            [name, brand, description, price, stock, image_url, category_id]
         );
 
         res.status(201).json(result.rows[0]);
@@ -95,37 +95,39 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-const updateProduct = async (req, res) => {
-    const { id } = req.params;
-    const { name, description, price, stock, category_id } = req.body;
+    const updateProduct = async (req, res) => {
+        const { id } = req.params;
+        const { name, description, price, stock, category_id, image_url, brand } = req.body;
 
-    try {
-        // Check if product exists
-        const productCheck = await pool.query("SELECT id FROM products WHERE id = $1", [id]);
+        try {
+            // Check if product exists
+            const productCheck = await pool.query("SELECT id FROM products WHERE id = $1", [id]);
 
-        if (productCheck.rows.length === 0) {
-            return res.status(404).json({ error: "Product not found" });
+            if (productCheck.rows.length === 0) {
+                return res.status(404).json({ error: "Product not found" });
+            }
+
+            // Update only the provided fields
+            const result = await pool.query(
+                `UPDATE products
+                SET 
+                    name = COALESCE($1, name),
+                    description = COALESCE($2, description),
+                    price = COALESCE($3, price),
+                    stock = COALESCE($4, stock),
+                    category_id = COALESCE($5, category_id),
+                    image_url = COALESCE($6, image_url),
+                    brand = COALESCE($7, brand)
+                WHERE id = $8
+                RETURNING *`,
+                [name, description, price, stock, category_id, image_url, brand, id]
+            );
+
+            res.json({ message: "Product updated", product: result.rows[0] });
+        } catch (error) {
+            console.error("Error in updateProduct:", error);
+            res.status(500).json({ error: "Could not update product" });
         }
-
-        // Update only the provided fields
-        const result = await pool.query(
-            `UPDATE products
-            SET 
-                name = COALESCE($1, name),
-                description = COALESCE($2, description),
-                price = COALESCE($3, price),
-                stock = COALESCE($4, stock),
-                category_id = COALESCE($5, category_id)
-            WHERE id = $6
-            RETURNING *`,
-            [name, description, price, stock, category_id, id]
-        );
-
-        res.json({ message: "Product updated", product: result.rows[0] });
-    } catch (error) {
-        console.error("Error in updateProduct:", error);
-        res.status(500).json({ error: "Could not update product" });
-    }
-};
+    };
 
 module.exports = { getAllProducts, getProduct, addProduct, deleteProduct, updateProduct };

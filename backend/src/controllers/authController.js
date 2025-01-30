@@ -54,6 +54,9 @@ const loginUser = async (req, res) => {
             { expiresIn: '1h' }                 // Token expires after 1 hour
         );
 
+        // Debugging: Log the user ID and token
+        console.log("User logged in. User ID:", user.id, "Token:", token);
+
         res.json({ token });
     } catch (error) {
         console.error('Error in loginUser:', error);
